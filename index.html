@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>程式教學清單</title>
+    <!-- Ionic CDN -->
+    <script
+      type="module"
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css"
+    />
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <ion-app>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>程式教學清單</ion-title>
+        </ion-toolbar>
+      </ion-header>
+
+      <div class="search-container">
+        <ion-searchbar 
+          placeholder="搜尋課程名稱、程式語言或重點內容..." 
+          show-clear-button="focus"
+          debounce="300">
+        </ion-searchbar>
+      </div>
+
+      <div class="filter-container">
+        <ion-item>
+          <ion-select 
+            label="分類篩選" 
+            interface="popover" 
+            placeholder="選擇分類">
+            <ion-select-option value="">全部課程</ion-select-option>
+            <ion-select-option value="程式入門">程式入門</ion-select-option>
+            <ion-select-option value="網頁開發">網頁開發</ion-select-option>
+            <ion-select-option value="資料科學">資料科學</ion-select-option>
+            <ion-select-option value="行動開發">行動開發</ion-select-option>
+            <ion-select-option value="系統設計">系統設計</ion-select-option>
+            <ion-select-option value="演算法">演算法</ion-select-option>
+          </ion-select>
+        </ion-item>
+      </div>
+
+      <ion-content>
+        <ion-list id="courseList">
+          <!-- 課程項目將由 JavaScript 動態生成 -->
+        </ion-list>
+        
+        <div id="noResults" class="no-results" style="display: none;">
+          <ion-icon name="search-outline" size="large"></ion-icon>
+          <p>找不到符合條件的課程</p>
+        </div>
+      </ion-content>
+    </ion-app>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
