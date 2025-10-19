@@ -1,4 +1,4 @@
-// 課程資料介面定義
+// 課程資料介面定義 - 使用更廣泛的瀏覽器兼容性
 interface Course {
   title: string;           // 課程名稱
   language: string;        // 程式語言
@@ -8,6 +8,23 @@ interface Course {
   tags: string[];         // 標籤陣列
   imageUrl: string;       // 課程封面
   videoUrl: string;       // 教學影片
+}
+
+// 為了更好的瀏覽器兼容性，定義全域類型
+declare global {
+  interface Window {
+    CourseData: {
+      courses: Course[];
+      searchCourses: (searchTerm: string, category?: string) => Course[];
+      getAllCategories: () => string[];
+      getAllLanguages: () => string[];
+    };
+  }
+  
+  // 定義 Node.js 模組類型（用於向後兼容）
+  const module: {
+    exports: any;
+  } | undefined;
 }
 
 // 程式開發課程資料
@@ -269,4 +286,25 @@ export function getAllCategories(): string[] {
 export function getAllLanguages(): string[] {
   const languages = [...new Set(courses.map(course => course.language))];
   return languages.sort();
+}
+
+// 為了更好的瀏覽器兼容性，提供全域物件
+// 這樣可以在沒有模組支援的舊瀏覽器中使用
+if (typeof window !== 'undefined') {
+  window.CourseData = {
+    courses: courses,
+    searchCourses: searchCourses,
+    getAllCategories: getAllCategories,
+    getAllLanguages: getAllLanguages
+  };
+}
+
+// 為了向後兼容，也提供 CommonJS 格式的匯出
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    courses: courses,
+    searchCourses: searchCourses,
+    getAllCategories: getAllCategories,
+    getAllLanguages: getAllLanguages
+  };
 }

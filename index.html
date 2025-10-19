@@ -64,6 +64,17 @@
       </ion-content>
     </ion-app>
 
+    <!-- 載入 TypeScript 檔案作為全域腳本 -->
+    <script src="courseData.ts"></script>
+    <!-- 載入主要應用程式 -->
     <script type="module" src="app.js"></script>
+    <!-- 備用載入方式 - 如果模組載入失敗 -->
+    <script>
+      // 備用載入機制
+      if (typeof window.CourseData === 'undefined') {
+        console.warn('CourseData not loaded, attempting fallback...');
+        // 這裡可以添加備用資料載入邏輯
+      }
+    </script>
   </body>
 </html>

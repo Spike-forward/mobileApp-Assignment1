@@ -1,5 +1,20 @@
-// 從 JavaScript 模組匯入課程資料和函數
-import { courses, searchCourses, getAllCategories } from './courseData.js';
+// 從 TypeScript 模組匯入課程資料和函數
+// 使用動態匯入以支援更多瀏覽器
+let courses, searchCourses, getAllCategories;
+
+// 嘗試使用 ES6 模組匯入
+try {
+  const courseModule = await import('./courseData.ts');
+  courses = courseModule.courses;
+  searchCourses = courseModule.searchCourses;
+  getAllCategories = courseModule.getAllCategories;
+} catch (error) {
+  // 如果模組匯入失敗，使用全域物件
+  console.warn('ES6 module import failed, using global object:', error);
+  courses = window.CourseData?.courses || [];
+  searchCourses = window.CourseData?.searchCourses || function() { return []; };
+  getAllCategories = window.CourseData?.getAllCategories || function() { return []; };
+}
 
 // 全域變數
 let filteredCourses = [...courses];
@@ -11,11 +26,27 @@ const searchBar = document.querySelector('ion-searchbar');
 const categorySelect = document.querySelector('ion-select');
 const noResults = document.getElementById('noResults');
 
-// 初始化
-document.addEventListener('DOMContentLoaded', function() {
-  updateCourseList();
-  setupEventListeners();
-  populateCategoryOptions();
+// 初始化 - 確保在資料載入後執行
+document.addEventListener('DOMContentLoaded', async function() {
+  // 等待資料載入完成
+  if (!courses || courses.length === 0) {
+    // 如果資料還沒載入，等待一下再試
+    setTimeout(() => {
+      if (window.CourseData) {
+        courses = window.CourseData.courses;
+        searchCourses = window.CourseData.searchCourses;
+        getAllCategories = window.CourseData.getAllCategories;
+        filteredCourses = [...courses];
+        updateCourseList();
+        setupEventListeners();
+        populateCategoryOptions();
+      }
+    }, 100);
+  } else {
+    updateCourseList();
+    setupEventListeners();
+    populateCategoryOptions();
+  }
 });
 
 // 設定事件監聽器
