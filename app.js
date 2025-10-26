@@ -1,56 +1,63 @@
-// 從 TypeScript 模組匯入課程資料和函數
-// 使用動態匯入以支援更多瀏覽器
+// 從模組匯入課程資料和函數
 let courses, searchCourses, getAllCategories;
 
-// 嘗試使用 ES6 模組匯入
-try {
-  const courseModule = await import('./courseData.ts');
-  courses = courseModule.courses;
-  searchCourses = courseModule.searchCourses;
-  getAllCategories = courseModule.getAllCategories;
-} catch (error) {
-  // 如果模組匯入失敗，使用全域物件
-  console.warn('ES6 module import failed, using global object:', error);
-  courses = window.CourseData?.courses || [];
-  searchCourses = window.CourseData?.searchCourses || function() { return []; };
-  getAllCategories = window.CourseData?.getAllCategories || function() { return []; };
-}
-
-// 全域變數
-let filteredCourses = [...courses];
+// 全域變數（將在初始化時設置）
+let filteredCourses = [];
 let currentCategory = '';
 
-// DOM 元素
-const courseList = document.getElementById('courseList');
-const searchBar = document.querySelector('ion-searchbar');
-const categorySelect = document.querySelector('ion-select');
-const noResults = document.getElementById('noResults');
+// DOM 元素（將在初始化時設置）
+let courseList, searchBar, categorySelect, noResults;
 
-// 初始化 - 確保在資料載入後執行
-document.addEventListener('DOMContentLoaded', async function() {
-  // 等待資料載入完成
-  if (!courses || courses.length === 0) {
-    // 如果資料還沒載入，等待一下再試
-    setTimeout(() => {
-      if (window.CourseData) {
-        courses = window.CourseData.courses;
-        searchCourses = window.CourseData.searchCourses;
-        getAllCategories = window.CourseData.getAllCategories;
-        filteredCourses = [...courses];
-        updateCourseList();
-        setupEventListeners();
-        populateCategoryOptions();
-      }
-    }, 100);
-  } else {
-    updateCourseList();
-    setupEventListeners();
-    populateCategoryOptions();
+// 初始化函數
+async function initApp() {
+  // 嘗試使用 ES6 模組匯入
+  try {
+    const courseModule = await import('./courseData.js');
+    courses = courseModule.courses;
+    searchCourses = courseModule.searchCourses;
+    getAllCategories = courseModule.getAllCategories;
+  } catch (error) {
+    // 如果模組匯入失敗，使用全域物件
+    console.warn('ES6 module import failed, using global object:', error);
+    courses = window.CourseData?.courses || [];
+    searchCourses = window.CourseData?.searchCourses || function() { return []; };
+    getAllCategories = window.CourseData?.getAllCategories || function() { return []; };
   }
+
+  // 檢查資料是否載入
+  if (!courses || courses.length === 0) {
+    // 嘗試使用全域物件
+    if (window.CourseData) {
+      courses = window.CourseData.courses;
+      searchCourses = window.CourseData.searchCourses;
+      getAllCategories = window.CourseData.getAllCategories;
+    }
+  }
+
+  // 初始化資料
+  filteredCourses = [...courses];
+
+  // 設置 DOM 元素
+  courseList = document.getElementById('courseList');
+  searchBar = document.querySelector('ion-searchbar');
+  categorySelect = document.querySelector('ion-select');
+  noResults = document.getElementById('noResults');
+
+  // 初始化介面
+  updateCourseList();
+  setupEventListeners();
+  populateCategoryOptions();
+}
+
+// 等待 DOM 載入完成
+document.addEventListener('DOMContentLoaded', function() {
+  initApp();
 });
 
 // 設定事件監聽器
 function setupEventListeners() {
+  if (!searchBar || !categorySelect) return;
+
   // 搜尋功能
   searchBar.addEventListener('ionInput', function(event) {
     const searchTerm = event.target.value.toLowerCase();
@@ -94,6 +101,8 @@ function filterCourses(searchTerm, category) {
 
 // 更新課程清單顯示
 function updateCourseList() {
+  if (!courseList || !noResults) return;
+  
   courseList.innerHTML = '';
   
   if (filteredCourses.length === 0) {
@@ -167,6 +176,7 @@ function createCourseItem(course) {
 document.addEventListener('click', function(event) {
   // 點擊分類標籤快速篩選
   if (event.target.classList.contains('category-chip')) {
+    if (!categorySelect || !searchBar) return;
     const category = event.target.textContent;
     categorySelect.value = category;
     currentCategory = category;
@@ -181,6 +191,8 @@ document.addEventListener('click', function(event) {
     const courseItem = courseHeader.closest('.course-item');
     const courseDetails = courseItem.querySelector('.course-details');
     const expandIcon = courseHeader.querySelector('.expand-icon');
+    
+    if (!courseDetails || !expandIcon) return;
     
     // 切換展開狀態
     if (courseDetails.classList.contains('expanded')) {
